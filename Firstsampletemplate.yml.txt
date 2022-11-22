@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: a sample template to create first stack
+Resources:
+	SampleEC2Instance:
+		Type: AWS::EC2::Instance
+		Properties: 
+			ImageId: ami-09d3b3274b6c5d4aa
+			InstanceType: t2.micro
+			Tags:
+				-
+					key: Name
+					Value: "sampleInstance"
+		SampleQueue:
+			Type: AWS::SQS::Queue
+			
+		SampleTopic:
+			Type: AWS::SNS::Topic	
+			

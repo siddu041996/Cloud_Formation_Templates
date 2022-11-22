@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: activitty of vpc-subnet-ec2-secgroup
+Resources: 
+  ActivityVpc:
+    Type: AWS::EC2::VPC
+    Description: activity vpc-ec2-secgroup
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      Tags: 
+        -
+          Key: Name
+          Value: activity vpc-ec2-secgroup 
+  ActivitySubnet:
+    Type: AWS::EC2::Subnet
+    Properties: 
+      CidrBlock: 10.0.0.0/24
+      MapPublicIpOnLaunch: true
+      VpcId: !Ref ActivityVpc
+  ActivityRoutetable:
+    Type: AWS::EC2::RouteTable
+    Properties: 
+      VpcId: !Ref ActivityVpc
+  ActivityInternetGateway:
+    Type: AWS::EC2::InternetGateway
+  ActivityGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties: 
+      InternetGatewayId: !Ref ActivityInternetGateway
+      VpcId: !Ref ActivityVpc
+  ActivityInternetRoute:
+    Type: AWS::EC2::Route
+    DependsOn: ActivityGatewayAttachment
+    Properties:
+      RouteTableId: !Ref ActivityRoutetable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref ActivityInternetGateway
+  ActivitySubnetRoutetableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      RouteTableId: !Ref ActivityRoutetable
+      SubnetId: !Ref ActivitySubnet
+  ActivityInstance:
+    Type: AWS::EC2::Instance
+    DependsOn:
+      - ActivityInternetRoute
+      - ActivitySubnetRoutetableAssociation
+    Properties: 
+      InstanceType: t2.micro
+      SubnetId : !Ref ActivitySubnet
+      ImageId: ami-0c4e4b4eb2e11d1d4
+      Tags: 
+        -
+          Key: Name
+          Value: vpc-ec2-secgroup
+      SecurityGroupIds: 
+        - 
+          !Ref ActivitySecurityGroup
+  ActivitySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Activity security group
+      VpcId: !Ref ActivityVpc
+      SecurityGroupIngress:
+        -
+          CidrIp: 0.0.0.0/0
+          IpProtocol: icmp
+          FromPort: -1
+          ToPort: -1
+        -
+          CidrIp: 0.0.0.0/0
+          IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80   

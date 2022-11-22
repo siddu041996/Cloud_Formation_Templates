@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: our first template.
+Resources:
+  WebServerInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0149b2da6ceec4bb0
+      InstanceType: t2.micro
+      SecurityGroupIds: 
+        -
+          Ref: WebServerSecurityGroup
+      Tags: 
+        - 
+          Key: Name
+          Value: FirstInstance
+        - 
+          Key: Project
+          Value: SampleProject
+          
+  WebServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: adding security group to instance
+      SecurityGroupIngress: 
+        -
+          IpProtocol: "tcp"
+          FromPort: 80
+          ToPort: 80
+          CidrIp: "0.0.0.0/0"
+      Tags: 
+        -
+          Key: Name
+          Value: web server security group
+    
+  SQSQueue:
+    Type: AWS::SQS::Queue
+    DependsOn: WebServerInstance
